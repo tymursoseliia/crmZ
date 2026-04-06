@@ -32,15 +32,7 @@ export default function SalaryCalculationTab() {
   ), [expenses, currentPeriod.startDate, currentPeriod.endDate]);
 
   // Рассчитываем статистику команд
-  const vohaStats = useMemo(() => calculateTeamStats(
-    'voha',
-    periodOperations,
-    periodExpenses,
-    employees,
-    initialSettings,
-    currentPeriod.id,
-    currentPeriod.isClosed ? (currentPeriod.calculation_version || 'v1') : 'v2' // Открытые периоды всегда считаем по новой логике (v2)
-  ), [periodOperations, periodExpenses, employees, currentPeriod]);
+
 
   const zetStats = useMemo(() => calculateTeamStats(
     'zet',
@@ -63,7 +55,6 @@ export default function SalaryCalculationTab() {
   ), [periodOperations, periodExpenses, employees, currentPeriod]);
 
   const companyTotals = useMemo(() => calculateCompanyTotals(
-    vohaStats,
     zetStats,
     officeStats,
     employees,
@@ -71,14 +62,13 @@ export default function SalaryCalculationTab() {
     periodExpenses,
     initialSettings,
     currentPeriod.isClosed ? (currentPeriod.calculation_version || 'v1') : 'v2'
-  ), [vohaStats, zetStats, officeStats, employees, periodOperations, periodExpenses, currentPeriod]);
+  ), [zetStats, officeStats, employees, periodOperations, periodExpenses, currentPeriod]);
 
   // Группируем сотрудников
   const groupedEmployees = useMemo(() => {
     // Все сотрудники считаются как обычные (без % от прибыли)
 
-    // 1. Команда Вохи (менеджеры)
-    const vohaTeam = employees.filter(e => e.team === 'voha' && e.role === 'manager');
+
 
     // 2. Команда Зета (менеджеры)
     const zetTeam = employees.filter(e => e.team === 'zet' && e.role === 'manager');
@@ -90,7 +80,7 @@ export default function SalaryCalculationTab() {
     const itTeam = employees.filter(e => e.role === 'it');
 
     return {
-      vohaTeam,
+
       zetTeam,
       closers,
       itTeam,
@@ -231,29 +221,7 @@ export default function SalaryCalculationTab() {
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {/* 2. Команда Вохи */}
-          <Card className="shadow-lg border-t-4 border-t-blue-500">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 py-2 px-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-blue-600" />
-                  Команда Вохи
-                </CardTitle>
-                <Badge className="bg-blue-500 text-xs">{groupedEmployees.vohaTeam.length}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-2 pb-2 px-4">
-              <div className="space-y-1">
-                {groupedEmployees.vohaTeam.map(emp => renderEmployee(emp, salaries[emp.id] || { salary: 0 }, 'Менеджер'))}
-              </div>
-              <div className="mt-2 pt-2 border-t border-gray-200">
-                <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-gray-600">Итого команда:</span>
-                  <span className="text-blue-600">${formatUSDT(groupedEmployees.vohaTeam.reduce((sum, e) => sum + (salaries[e.id]?.salary || 0), 0))}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* 3. Команда Зета */}
           <Card className="shadow-lg border-t-4 border-t-purple-500">
