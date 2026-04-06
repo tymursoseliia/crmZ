@@ -330,7 +330,7 @@ export default function ReportsTab() {
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-gray-900">{manager.name}</p>
                             <Badge variant={manager.team === 'zet' ? 'default' : 'secondary'}>
-                              {manager.team === 'zet' ? 'Зет' : manager.team === 'zet' ? 'Зет' : 'Офис'}
+                              {manager.team === 'zet' ? 'Зет' : 'Офис'}
                             </Badge>
                             {index < 3 && (
                               <Award className={`w-5 h-5 ${
@@ -387,7 +387,7 @@ export default function ReportsTab() {
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-gray-900">{manager.name}</p>
                         <Badge variant={manager.team === 'zet' ? 'default' : 'secondary'}>
-                          {manager.team === 'zet' ? 'Зет' : manager.team === 'zet' ? 'Зет' : 'Офис'}
+                          {manager.team === 'zet' ? 'Зет' : 'Офис'}
                         </Badge>
                         {index < 3 && (
                           <Award className={`w-5 h-5 ${
@@ -573,28 +573,6 @@ export default function ReportsTab() {
                       </p>
                     </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-blue-700">Команда Зета</span>
-                        <span className="text-2xl font-bold text-blue-700">
-                          ${formatUSDT(zetStats.operationsCount > 0 ? zetStats.totalRevenue / zetStats.operationsCount : 0)}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all"
-                          style={{
-                            width: `${Math.min(100, (zetStats.operationsCount > 0 ? (zetStats.totalRevenue / zetStats.operationsCount) / 100 : 0))}%`
-                          }}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {zetStats.operationsCount} операций
-                      </p>
-                    </div>
-
-
-
                     <div className="pt-4 border-t">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-gray-700">Средний по компании</span>
@@ -650,59 +628,22 @@ export default function ReportsTab() {
                   </div>
                 </div>
 
-                {/* Команда Зета */}
-                <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                  <h3 className="font-semibold text-blue-900 mb-4 flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Команда Зета
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-white rounded-lg">
-                      <p className="text-sm text-gray-600">Выручка</p>
-                      <p className="text-2xl font-bold text-blue-700">${formatUSDT(zetStats.totalRevenue)}</p>
-                    </div>
-                    <div className="p-3 bg-white rounded-lg">
-                      <p className="text-sm text-gray-600">Операций</p>
-                      <p className="text-2xl font-bold text-blue-700">{zetStats.operationsCount}</p>
-                    </div>
-                    <div className="p-3 bg-white rounded-lg">
-                      <p className="text-sm text-gray-600">Средний чек</p>
-                      <p className="text-2xl font-bold text-blue-700">
-                        ${formatUSDT(zetStats.operationsCount > 0 ? zetStats.totalRevenue / zetStats.operationsCount : 0)}
-                      </p>
-                    </div>
-                    <div className="p-3 bg-white rounded-lg">
-                      <p className="text-sm text-gray-600">Менеджеров</p>
-                      <p className="text-2xl font-bold text-blue-700">
-                        {employees.filter(e => e.team === 'zet' && e.role === 'manager').length}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-
 
                 {/* Сравнение */}
                 <div className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                   <h3 className="font-semibold text-gray-900 mb-4">📊 Сравнение</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-700">Выручка на менеджера (Зет):</span>
+                      <span className="text-gray-700">Выручка на менеджера:</span>
                       <span className="font-bold text-purple-700">
                         ${formatUSDT(teamEfficiency[0].revenuePerManager)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700">Выручка на менеджера (Зет):</span>
-                      <span className="font-bold text-blue-700">
-                        ${formatUSDT(teamEfficiency[1].revenuePerManager)}
                       </span>
                     </div>
                     <div className="pt-3 border-t">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-700 font-semibold">Общая выручка:</span>
                         <span className="text-2xl font-bold text-green-700">
-                          ${formatUSDT(zetStats.totalRevenue + zetStats.totalRevenue)}
+                          ${formatUSDT(zetStats.totalRevenue)}
                         </span>
                       </div>
                     </div>
