@@ -37,7 +37,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">
-            Империя СКАМА
+            Империя Зета
           </CardTitle>
           <p className="text-sm text-gray-600 mt-2">
             Генератор автодокументов

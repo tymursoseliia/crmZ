@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Империя СКАМА",
+  title: "Империя Зета",
   description: "Генератор автодокументов",
   icons: {
     icon: "/favicon.svg",

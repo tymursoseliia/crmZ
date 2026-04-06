@@ -166,7 +166,7 @@ export default function CRMPage() {
               <div className="h-6 w-px bg-gray-300" />
               <div className="flex items-center gap-2">
                 <Crown className="w-6 h-6 text-amber-500" />
-                <span className="font-bold text-gray-800">Империя СКАМА</span>
+                <span className="font-bold text-gray-800">Империя Зета</span>
               </div>
               <div className="h-6 w-px bg-gray-300" />
               <span className="text-purple-600 font-medium">CRM - Воронка лидов</span>
