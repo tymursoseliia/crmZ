@@ -98,7 +98,6 @@ export default function EmployeesTab() {
     );
   }
 
-  const vohaTeam = employees.filter(emp => emp.team === 'voha');
   const zetTeam = employees.filter(emp => emp.team === 'zet');
   const closers = employees.filter(emp => emp.role === 'closer');
   const itDepartment = employees.filter(emp => emp.role === 'it');
@@ -344,13 +343,6 @@ export default function EmployeesTab() {
         </div>
       </div>
 
-      {/* Команда Вохи */}
-      <TeamTable
-        title="Команда Вохи"
-        teamEmployees={vohaTeam}
-        icon={<Users className="w-5 h-5 text-blue-600" />}
-        colorClass="border-t-blue-500"
-      />
 
       {/* Команда Зета */}
       <TeamTable
