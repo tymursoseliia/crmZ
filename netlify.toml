@@ -1,0 +1,15 @@
+[build]
+  command = "rm -rf node_modules package-lock.json && npm cache clean --force && npm install && npm run build -- --no-lint"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+  NPM_CONFIG_CACHE = "/opt/buildhome/.npm-cache-new"
+  DISABLE_ESLINT = "true"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[images]
+  remote_images = ["https://source.unsplash.com/.*", "https://images.unsplash.com/.*", "https://ext.same-assets.com/.*", "https://ugc.same-assets.com/.*"]
