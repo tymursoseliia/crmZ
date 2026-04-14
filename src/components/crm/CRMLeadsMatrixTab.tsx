@@ -8,21 +8,109 @@ import { Badge } from "@/components/ui/badge";
 
 import { Loader2, Save, Calendar as CalendarIcon, Target } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import PeriodSelector from "@/components/finance/PeriodSelector";
 
 export default function CRMLeadsMatrixTab() {
-  const { employees, currentPeriod, useSupabase } = useFinance();
+  const { employees, isLoaded: financeLoaded, useSupabase } = useFinance();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [periods, setPeriods] = useState<any[]>([]);
+  const [currentPeriod, setCurrentPeriod] = useState<any | null>(null);
+  const [isCreatingPeriod, setIsCreatingPeriod] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   // Matrix data: managerId -> date -> leads count
   const [matrixData, setMatrixData] = useState<Record<string, Record<string, number>>>({});
+
+  useEffect(() => {
+    if (financeLoaded) loadPeriods();
+  }, [financeLoaded]);
+
+  const createFirstPeriod = async () => {
+    const firstPeriod = {
+      id: 'tg-period-2026-01-26',
+      period_number: 1,
+      start_date: '2026-01-26',
+      end_date: '2026-02-08', // Будет заменен при создании нового
+      is_current: true,
+      is_closed: false
+    };
+    if (supabase) {
+      try { await supabase.from('telegram_periods').insert([firstPeriod]); } catch(e) {}
+    }
+    setCurrentPeriod(firstPeriod);
+    setPeriods([firstPeriod]);
+  };
+
+  const loadPeriods = async () => {
+    try {
+      if (!supabase) { setIsLoaded(true); return; }
+      
+      const { data, error } = await supabase
+        .from('telegram_periods')
+        .select('*')
+        .order('period_number', { ascending: false });
+      if (error) {
+        await createFirstPeriod(); // Фолбек
+        setIsLoaded(true);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        setPeriods(data);
+        setCurrentPeriod(data.find(p => p.is_current) || data[0]);
+      } else {
+        await createFirstPeriod();
+      }
+    } catch (e) {
+      await createFirstPeriod();
+    } finally {
+      setIsLoaded(true);
+    }
+  };
+
+  const switchPeriod = async (periodId: string) => {
+    const period = periods.find(p => p.id === periodId);
+    if (!period) return;
+    if (supabase) {
+      await supabase.from('telegram_periods').update({ is_current: false }).neq('id', periodId);
+      await supabase.from('telegram_periods').update({ is_current: true }).eq('id', periodId);
+    }
+    setCurrentPeriod(period);
+  };
+
+  const createNewPeriod = async () => {
+    if (isCreatingPeriod || !currentPeriod || !supabase) return;
+    setIsCreatingPeriod(true);
+    try {
+      const lastEndDate = new Date(currentPeriod.end_date);
+      const newStartDate = new Date(lastEndDate);
+      newStartDate.setDate(newStartDate.getDate() + 1);
+      const newEndDate = new Date(newStartDate);
+      newEndDate.setDate(newEndDate.getDate() + 6); // Ровно 1 неделя
+      const newPeriod = {
+        id: `tg-period-${newStartDate.toISOString().split('T')[0]}`,
+        period_number: currentPeriod.period_number + 1,
+        start_date: newStartDate.toISOString().split('T')[0],
+        end_date: newEndDate.toISOString().split('T')[0],
+        is_current: true,
+        is_closed: false
+      };
+      await supabase.from('telegram_periods').update({ is_current: false }).eq('id', currentPeriod.id);
+      await supabase.from('telegram_periods').insert([newPeriod]);
+      setPeriods(prev => [newPeriod, ...prev.map(p => ({...p, is_current: false}))]);
+      setCurrentPeriod(newPeriod);
+    } finally {
+      setIsCreatingPeriod(false);
+    }
+  };
   
   // Get all dates in current period
   const periodDates = useMemo(() => {
+    if (!currentPeriod) return [];
     const dates: string[] = [];
-    const start = new Date(currentPeriod.startDate);
-    const end = new Date(currentPeriod.endDate);
+    const start = new Date(currentPeriod.start_date);
+    const end = new Date(currentPeriod.end_date);
     
     // limit to reasonable amount if period is too long to display
     const limitEnd = new Date(start);
@@ -43,15 +131,15 @@ export default function CRMLeadsMatrixTab() {
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
-      if (!useSupabase || !supabase) return;
+      if (!useSupabase || !supabase || !currentPeriod) return;
       
       setLoading(true);
       try {
         const { data, error } = await supabase
           .from('daily_activity')
           .select('manager_id, date, leads_contacted')
-          .gte('date', currentPeriod.startDate)
-          .lte('date', currentPeriod.endDate);
+          .gte('date', currentPeriod.start_date)
+          .lte('date', currentPeriod.end_date);
           
         if (error) throw error;
         
@@ -187,19 +275,40 @@ export default function CRMLeadsMatrixTab() {
           <Target className="w-6 h-6 text-purple-600" />
           Leads Matrix
         </h2>
-        <div className="flex items-center gap-4">
-          <PeriodSelector />
+        <div className="flex items-center gap-3">
+          {/* Селектор */}
+          <select 
+            value={currentPeriod?.id || ''} 
+            onChange={(e) => switchPeriod(e.target.value)}
+            className="px-3 py-2 border border-purple-200 rounded-lg text-sm bg-white text-purple-900 font-medium cursor-pointer"
+          >
+            {periods.map(p => (
+              <option key={p.id} value={p.id}>
+                Период {p.period_number}: {new Date(p.start_date).toLocaleDateString('ru-RU')} - {new Date(p.end_date).toLocaleDateString('ru-RU')}
+              </option>
+            ))}
+          </select>
+          {/* Кнопка создания */}
+          <Button 
+            onClick={createNewPeriod} 
+            disabled={isCreatingPeriod || !isLoaded} 
+            variant="outline" 
+            className="bg-white border-purple-200 text-purple-700 hover:bg-purple-50 h-9"
+          >
+            {isCreatingPeriod ? 'Создание...' : 'Создать период (+7 дней)'}
+          </Button>
+          {/* Существующая кнопка */}
           <Button 
             onClick={handleSave} 
-            disabled={loading || saving}
-            className="bg-purple-600 hover:bg-purple-700"
+            disabled={loading || saving || !isLoaded}
+            className="bg-purple-600 hover:bg-purple-700 h-9"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
-            Сохранить матрицу
+            Сохранить изменения
           </Button>
         </div>
       </div>

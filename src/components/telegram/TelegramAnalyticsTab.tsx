@@ -192,7 +192,7 @@ export default function TelegramAnalyticsTab() {
       newStartDate.setDate(newStartDate.getDate() + 1);
 
       const newEndDate = new Date(newStartDate);
-      newEndDate.setDate(newEndDate.getDate() + 13); // +13 дней = 14 дней всего
+      newEndDate.setDate(newEndDate.getDate() + 6); // +6 дней = 7 дней (неделя)
 
       const newPeriod: TelegramPeriod = {
         id: `tg-period-${newStartDate.toISOString().split('T')[0]}`,
